@@ -1,106 +1,133 @@
+import requests
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup
 import pyautogui
 import time
-# 크롬 드라이버
-driver = webdriver.Chrome('C:\\Users\\woniw\\OneDrive\\바탕 화면\\chromedriver_win32\\chromedriver.exe')
+import requests as rq
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
+
+driver = webdriver.Chrome('C:\\Users\\woniw\\OneDrive\\바탕 화면\\chromedriver_win32 (1)\\chromedriver.exe')
 # URL
 url = 'https://m.ecolian.or.kr:444/asp/rsvn/login.asp?returnUrl=https%3A%2F%2Fm.ecolian.or.kr%3A444%2Fasp%2Frsvn%2FrsvnStep1.asp'
+id = 'kysuzgolf'
+pw = '(K$344247'
+
 driver.get(url)
 driver.maximize_window()
 
-driver.find_element_by_id('f_id').send_keys('kysuzgolf')
-driver.find_element_by_id('f_pw').send_keys('(K$344247')
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "f_id")))
+driver.find_element_by_id('f_id').send_keys(id)
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "f_pw")))
+driver.find_element_by_id('f_pw').send_keys(pw)
+time.sleep(1)
 pyautogui.press('Enter')
+time.sleep(1)
+
+#id jms0805
+#pw Ch08jms8828*
+
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#f_bsns > option:nth-child''(3)')))
+driver.find_element_by_css_selector('#f_bsns > option:nth-child'
+                                    '(4)').click()  # 4제천
 time.sleep(0.3)
+driver.find_element_by_css_selector('#btnCalNext') .click()#예약할 달로 세팅
 
+xpath = input("예약할 버튼의 xpath를 입력해주세요")
+def Macro():
+    print('Execute Macro Program.')
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '// *[ @ id = "f_hour"] / option[2]')))
+    driver.find_element_by_xpath('// *[ @ id = "f_hour"] / option[4]').click() # // *[ @ id = "f_hour"] / option[1] 은 '시간 선택'
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="f_minute"]/option[2]')))
+    driver.find_element_by_xpath('//*[@id="f_minute"]/option[4]').click() # // *[ @ id = "f_minute"] / option[1] 은 '분 선택'
 
-# driver.find_element_by_id('f_bsns').click()
-# driver.find_element_by_xpath('*//button[text()="에콜리안 제천"]')
-# driver.find_element("33").click()
-# driver.find_element_by_css_selector('.gLFyf.gsfi').send_keys('')
-
-
-
-
-
-def Refresh():
-    time.sleep(0.2)
-    driver.find_element_by_id('btnCalNext').click()
-    time.sleep(0.2)
-    SENTINEL = check()
-
-    if SENTINEL == 1:
-        return
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="btnStep2"]')))
+    driver.find_element_by_xpath('//*[@id="btnStep2"]').click()
 
     time.sleep(0.1)
-    driver.find_element_by_id('btnCalPrev').click()
-    time.sleep(0.15)
-    SENTINEL = check()
-
-    if SENTINEL == 1:
-        return
-
-    Refresh()
+    pyautogui.press('Enter')
 
 
 
-def check():
-    rgb = getPixel(btn)
-    print(rgb)
-    if rgb == ((106, 163, 73) or (107, 164, 74) or (37, 104, 0)):
-        print("check()함수 ")
+    time.sleep(0.6)
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'f_player_cnt')))
+    driver.find_element_by_id('f_player_cnt')
+    driver.find_element_by_css_selector('#f_player_cnt > option:nth-child(2)').click()
+    driver.find_element_by_css_selector('#f_player_name0').send_keys('###')
+    driver.find_element_by_css_selector('#f_player_name1').send_keys('###')
+    driver.find_element_by_css_selector('#f_player_name2').send_keys('###')
+    driver.find_element_by_css_selector('#f_player_name3').send_keys('###')
+
+    driver.find_element_by_css_selector('#btnSubmit').click() #예약신청
+
+    return 1
+
+
+def check(xpath):
+    available = "ResvDate item rsvn"
+    tmp_xpath = xpath
+    if driver.find_element_by_xpath(tmp_xpath).get_attribute('class') == available:
+        driver.find_element_by_xpath(tmp_xpath).click()
+        alert = driver.switch_to.alert
+        alert.accept()
+        print('Detected')
         SENTINEL = Macro()
         return SENTINEL
 
 
-def Macro():
-    pyautogui.click(btn)  # 6일 선택 ####
-    pyautogui.press('Enter')
 
-    SENTINEL = hourchoice()
-    if SENTINEL == 0:
-        safelist(len(hourlist) - 1, hourlist, 800)
+while True:
 
-    SENTINEL = minutechoice()
-    if SENTINEL == 0:
-        safelist(len(minutelist) - 1, minutelist, 840)
+    print()
+    print("    1. Program 실행")
+    print("    2. Settings ")  # 확장성 : 이벤트 발생시 처리 구현
+    print("    3. 종료")
+    print()
+    print("=" * 34)
+    print()
+    choice = int(input("원하시는 기능을 선택해주세요 : "))
 
-    pyautogui.click(192, 904)  # 다음 단계
+    if choice == 1:
+        SENTINEL = 0
+        while (SENTINEL != 1):
+            time.sleep(0.2)
+            driver.find_element_by_id('btnCalPrev').click()
+            time.sleep(0.2)
+            SENTINEL = check(xpath)
 
-    time.sleep(0.6)
-    pyautogui.click(192, 564)
-    pyautogui.click(192, 628)  # 4명 (제천, 영광, 거창)
+            time.sleep(0.2)
+            driver.find_element_by_id('btnCalNext').click()
+            time.sleep(0.2)
+            SENTINEL = check(xpath)
 
-    pyautogui.click(192, 653)  # 2번째 동반자
-    pyautogui.write("wjdakstjq")
+    elif choice == 2:
 
-    time.sleep(0.2)
-    pyautogui.click(518, 700)  # 3번째 동반자
-    pyautogui.write("wjdrudtjq")
+        print("현재 ID :",id)
+        print("현재 PW :",pw)
 
-    pyautogui.click(518, 725)  # 4번째 동반자
-    pyautogui.write("answjdtnr")
+        id = input("변경할 ID를 입력하세요 : ")
+        pw = input("변경할 PW를 입력하세요 : ")
 
-    pyautogui.click(1915, 970)  # 예약신청
 
-    return 1
-#     # URL
-#     url = 'https://google.com'
-#     driver.get(url)
-#
-#     # 요소
-#     #elem = driver.find_element_by_class_name('link_login')
-#
-#     # 요소 클릭
-#     #elem.click()
-#
-#     driver.switch_to_alert()
-# except Exception as e:
-#     print(e)
-#
-# finally:
-#     # 드라이버 종료
-#     driver.close()
-#     print('닫기')
+    elif choice == 3:  # 프로그램 종료
+        print("프로그램을 종료합니다.")
+        print()
+        print("=" * 34)
+        break
+
+    else:
+        print("잘못된 입력입니다.")
+        continue
+
+
+
+
+
+
+
+
+
+
+
